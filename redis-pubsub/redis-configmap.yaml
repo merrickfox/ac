@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: redis-config
+  namespace: redis-pubsub
 data:
   redis.conf: |
     # Redis configuration file example.
@@ -1739,7 +1740,7 @@ data:
     # PubSub message by default. (client-query-buffer-limit default value is 1gb)
     #
     # cluster-link-sendbuf-limit 0
-    
+
     # Clusters can configure their announced hostname using this config. This is a common use case for 
     # applications that need to use TLS Server Name Indication (SNI) or dealing with DNS based
     # routing. By default this value is only shown as additional metadata in the CLUSTER SLOTS
