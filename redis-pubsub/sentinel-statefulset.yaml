@@ -24,18 +24,35 @@ spec:
               nodes=redis-0.redis,redis-1.redis,redis-2.redis
               loop=$(echo $nodes | sed -e "s/,/\n/g")
 
+              MASTER=""
               for i in $loop
               do
                   echo "finding master at $i"
-                  MASTER=$(redis-cli --no-auth-warning --raw -h $i -a $REDIS_PASSWORD info replication | awk '{print $1}' | grep master_host: | cut -d ":" -f2)
-                  if [ "$MASTER" = "" ]; then
-                      echo "no master found"
-                      MASTER=
+                  MASTER_CHECK=$(redis-cli --no-auth-warning --raw -h $i -a $REDIS_PASSWORD info replication | awk '{print $1}' | grep master_host: | cut -d ":" -f2)
+                  if [ "$MASTER_CHECK" = "" ]; then
+                      echo "no master found at $i, might be a master"
+                      # Check if we can connect to this instance
+                      if redis-cli --no-auth-warning -h $i -a $REDIS_PASSWORD ping > /dev/null 2>&1; then
+                          echo "$i is reachable, setting as master"
+                          MASTER=$i
+                          break
+                      else
+                          echo "$i is not reachable, continuing search"
+                      fi
                   else
-                      echo "found $MASTER"
+                      echo "found master via replica: $MASTER_CHECK"
+                      MASTER=$MASTER_CHECK
                       break
                   fi
               done
+
+              # If no master was found, default to redis-0
+              if [ "$MASTER" = "" ]; then
+                  echo "no master found in cluster, defaulting to redis-0.redis"
+                  MASTER="redis-0.redis"
+              fi
+
+              echo "Using master: $MASTER"
               echo "sentinel monitor mymaster $MASTER 6379 2" >> /tmp/master
               echo "port 5000
               sentinel resolve-hostnames yes
