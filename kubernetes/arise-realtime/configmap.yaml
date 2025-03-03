@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: arise-realtime-config
+data:
+  LIBCLUSTER_STRATEGY: "kubernetes"
+  LIBCLUSTER_KUBERNETES_SELECTOR: "app=arise-realtime"
+  LIBCLUSTER_KUBERNETES_NODE_BASENAME: "arise-realtime"
+  LIBCLUSTER_KUBERNETES_NAMESPACE: "default" # Update this with your namespace
+  PHX_HOST: "realtime.arise.example.com" # Update with your domain
+  LOG_LEVEL: "info"

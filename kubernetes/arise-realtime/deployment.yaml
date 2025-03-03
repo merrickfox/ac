@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arise-realtime
+  labels:
+    app: arise-realtime
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: arise-realtime
+  template:
+    metadata:
+      labels:
+        app: arise-realtime
+    spec:
+      serviceAccountName: arise-realtime-sa
+      containers:
+        - name: arise-realtime
+          image: ${DOCKER_REGISTRY}/arise-realtime:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4000
+              name: http
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: RELEASE_COOKIE
+              valueFrom:
+                secretKeyRef:
+                  name: arise-realtime-secret
+                  key: release-cookie
+            - name: RELEASE_NODE
+              value: "$(POD_NAME).arise-realtime.$(NAMESPACE)"
+            - name: KUBERNETES_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: KUBERNETES_SERVICE_HOST
+              value: "kubernetes.default.svc.cluster.local"
+            - name: KUBERNETES_SERVICE_PORT
+              value: "443"
+            - name: PHX_SERVER
+              value: "true"
+            - name: PORT
+              value: "4000"
+          resources:
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 15
+      imagePullSecrets:
+        - name: regcred
