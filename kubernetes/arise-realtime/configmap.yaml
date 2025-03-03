@@ -6,6 +6,6 @@ data:
   LIBCLUSTER_STRATEGY: "kubernetes"
   LIBCLUSTER_KUBERNETES_SELECTOR: "app=arise-realtime"
   LIBCLUSTER_KUBERNETES_NODE_BASENAME: "arise-realtime"
-  LIBCLUSTER_KUBERNETES_NAMESPACE: "default" # Update this with your namespace
-  PHX_HOST: "realtime.arise.example.com" # Update with your domain
+  LIBCLUSTER_KUBERNETES_NAMESPACE: "arise-realtime" # Updated namespace for libcluster
+  PHX_HOST: "realtime.arise.localhost" # Updated for local development
   LOG_LEVEL: "info"

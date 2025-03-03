@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: arise-realtime
+  labels:
+    name: arise-realtime
+    app.kubernetes.io/part-of: arise-cluster
